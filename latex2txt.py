@@ -8,7 +8,7 @@ import re
 # 3. Remove the scope_keywords in begin ... end.
 # 4. Remove the equation pairs.
 # 5. Remove the backslash.
-remove_keywords = ['cite', 'ref']
+remove_keywords = ['cite', 'ref', 'item']
 keywords = ['section', 'subsection', 'subsubsection', 'subsubsubsection', 'chapter', 'textbf', 'emph']
 caption_keywords = ['figure', 'table']
 scope_keywords = ['equation', 'eqnarray']
@@ -19,6 +19,8 @@ def latex2txt(in_str):
     for keyword in remove_keywords:
         p = re.compile(r'\\%s\{(.+?)\}' % keyword)
         out_str = p.sub('', out_str)
+        p = re.compile(r'\\%s' % keyword)
+        out_str = p.sub('', out_str)
 
     for keyword in keywords:
         p = re.compile(r'\\%s\{(.+?)\}' % keyword)
@@ -27,7 +29,7 @@ def latex2txt(in_str):
     for keyword in caption_keywords:
         p = re.compile(r'\\begin\{%s\}.*?\\caption\{(.+?)\}.*?\\end\{%s\}' % (keyword, keyword),
                 re.S)
-        out_str = p.sub(r'\1', out_str)
+        out_str = p.sub(r'\1\n', out_str)
 
     for keyword in scope_keywords:
         p = re.compile(r'\\begin\{%s\}.*?\\end\{%s\}' % (keyword, keyword),
@@ -41,7 +43,7 @@ def latex2txt(in_str):
 
     p = re.compile(r'\\\S*?\{.+?\}')
     out_str = p.sub('', out_str)
-    p = re.compile(r'\\\S*?')
+    p = re.compile(r'\\')
     out_str = p.sub('', out_str)
 
     return out_str
@@ -63,7 +65,7 @@ def main():
             with open(input_name) as in_file:
                 input_content = in_file.read()
             output_content = latex2txt(input_content)
-            out_file.write(output_content)
+            out_file.write(output_content + '\n')
 
 
 if __name__ == '__main__':
