@@ -10,12 +10,13 @@ import re
 # 5. Remove the backslash.
 remove_keywords = ['cite', 'ref', 'item']
 keywords = ['section', 'subsection', 'subsubsection', 'subsubsubsection', 'chapter', 'textbf', 'emph']
-caption_keywords = ['figure', 'table']
+caption_keywords = ['figure', 'table', 'longtable']
 scope_keywords = ['equation', 'eqnarray']
 pairs = ['$']
 
 def latex2txt(in_str):
-    out_str = in_str
+    p = re.compile(r'^%.*?$', re.S | re.M)
+    out_str = p.sub('', in_str)
     for keyword in remove_keywords:
         p = re.compile(r'\\%s\{(.+?)\}' % keyword)
         out_str = p.sub('', out_str)
@@ -41,6 +42,8 @@ def latex2txt(in_str):
         p = re.compile(r'%s.*?%s' % (re_pair, re_pair), re.S)
         out_str = p.sub('', out_str)
 
+    p = re.compile(r'\\\S*?\{.+?\}\[.+?\]')
+    out_str = p.sub('', out_str)
     p = re.compile(r'\\\S*?\{.+?\}')
     out_str = p.sub('', out_str)
     p = re.compile(r'\\')
